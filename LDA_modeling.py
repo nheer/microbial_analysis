@@ -1,10 +1,10 @@
+import time
+import pickle
+
 import biom
 import scipy as sp
 import numpy as np
 import sklearn as skl
-import lda
-import time
-import pickle
 import matplotlib.pyplot as plt
 from sklearn.decomposition import LatentDirichletAllocation
 # Run LDA on sparse biom data
@@ -31,7 +31,7 @@ def run_multiple_LDA(biom_data, file_name, n_com_list):
 def perplexity_plot(model_list, test_data):
     '''Calculate and plot perplexity for list of models using test data.
 
-    Takes list of scikit-learn LDA models followed by withheld data. 
+    Takes list of scikit-learn LDA models followed by withheld data.
     '''
     test_data = test_data.matrix_data.transpose().astype('int')
     model_topics = [model.n_components for model in model_list]

@@ -1,12 +1,13 @@
+import time
+import re
+import pickle
+
 import biom
 import scipy as sp
 import numpy as np
 import pandas as pd
 import sklearn as skl
 import importlib
-import time
-import re
-import pickle
 import matplotlib.pyplot as plt
 
 home_data = pd.read_csv('homes_mapping_comma.csv')
@@ -21,7 +22,8 @@ def remove_indoors(values, sampleid, metadata):
         return False
     return int(r.group(1)) in home_data['ID'].values
 
-def process_biom_data(table_name, remove_indoor=True, select_bac=False, remove_bac=False, remove_empty=True):
+def process_biom_data(table_name, remove_indoor=True, select_bac=False,
+                      remove_bac=False, remove_empty=True):
     '''Remove indoor locations and empty rows/columns from biom-format file .
 
     Also remove bacteria or mitochondira if option selected.

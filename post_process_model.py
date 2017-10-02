@@ -1,13 +1,13 @@
+import time
+import re
+import pickle
+
+import biom
 import scipy as sp
 import numpy as np
 import pandas as pd
 import sklearn as skl
-import time
-import re
-import pickle
 import matplotlib.pyplot as plt
-
-import biom
 from mpl_toolkits.basemap import Basemap
 from sklearn.decomposition import LatentDirichletAllocation
 
@@ -39,19 +39,22 @@ def plot_communities(lons, lats, colorvals, sizevals, cmap_name='plasma',
     plt.show()
 
 def output_community_characteristics(model, home_data, biom_data, plots=False):
-    '''Return DataFrame of the distribution of communities for each location with geoclimate data'''
+    '''Return df of the weights of community for each location with geoclimate data'''
     #: Extract document topic distribution.
     model_doc_topic = model.transform(biom_data.matrix_data.transpose().astype('int'))
     print(model_doc_topic.shape)
     n_com = len(model_doc_topic.transpose())
     #: Extract integers from location IDs.
     r = re.compile(r'^(\d+)\.O$')
-    int_model_locations = [int(r.match(loc).group(1)) for loc in biom_data.ids('sample')]
+    int_model_locations = [int(r.match(loc).group(1))
+                           for loc in biom_data.ids('sample')]
     #: Create dataframe of community and location data.
     col_names = ['Community {0}'.format(i) for i in range(n_com)]
-    comm_df = pd.DataFrame(model_doc_topic, index=int_model_locations, columns=col_names)
+    comm_df = pd.DataFrame(model_doc_topic, index=int_model_locations,
+                           columns=col_names)
     #: Create list of home data rows in order.
-    ordered_geo_dfs = [home_data[home_data['ID'] == loc] for loc in int_model_locations]
+    ordered_geo_dfs = [home_data[home_data['ID'] == loc]
+                       for loc in int_model_locations]
     for col in ordered_geo_dfs[0]:
         comm_df[col] = [df[col].values[0] for df in ordered_geo_dfs]
     if plots:
@@ -62,7 +65,8 @@ def output_community_characteristics(model, home_data, biom_data, plots=False):
 
 def weighted_mean_std(info_data, doc_topic_weight):
     '''Return weighted mean and weighted std as tuple for all communities'''
-    com_mean = [np.average(info_data, None, t) for t in doc_topic_weight.transpose()]
+    com_mean = [np.average(info_data, None, t)
+                for t in doc_topic_weight.transpose()]
     com_var = [np.average((info_data-avg)**2, weights=t)
                for avg, t in zip(com_mean, doc_topic_weight.transpose())]
     com_std = np.sqrt(com_var)
@@ -76,25 +80,28 @@ def plot_wm_wstd(com_mean, com_std, y_label, n):
     plt.title('Weighted mean and std by community')
     plt.show()
 
-def calc_weights(comm_df, model, randomize=False, \
-                 charactaristics=['Latitude', 'Longitude', 'Elevation', \
-                                  'MeanAnnual Temperature', 'MeanAnnualPrecipitation'], \
-                 titles=['Latitude', 'Longitude', 'Elevation', \
-                         'Mean annual temperature', 'Mean annual precipitation'],
+def calc_weights(comm_df, model, randomize=False,
+                 charactaristics=['Latitude', 'Longitude', 'Elevation',
+                                  'MeanAnnual Temperature',
+                                  'MeanAnnualPrecipitation'],
+                 titles=['Latitude', 'Longitude', 'Elevation',
+                         'Mean annual temperature',
+                         'Mean annual precipitation'],
                  plots=True):
     '''Return DataFrame of weighted mean and std of each characteristic'''
     #: Extract document topic distribution.
     n_comm = len(model.components_)
     col_names = ['Community {0}'.format(i) for i in range(n_comm)]
     model_doc_topic = np.array(comm_df[col_names])
-    #: Create DataFrame of weighted mean and std for each community for each geoclimate parameter
+    #: Create df of weighted mean and std for each community for each geoclimate parameter
     weighted_parameters = pd.DataFrame()
     for i in range(len(charactaristics)):
-        weighted_parameters[charactaristics[i]+' Mean'], weighted_parameters[charactaristics[i]+' Std'] \
+        weighted_parameters[charactaristics[i]+' Mean'], \
+        weighted_parameters[charactaristics[i]+' Std'] \
                 = weighted_mean_std(comm_df[charactaristics[i]], model_doc_topic)
         if plots:
-            plot_wm_wstd(weighted_parameters[charactaristics[i]+' Mean'], \
-            weighted_parameters[charactaristics[i]+' Std'], \
-            titles[i], n=n_comm)
+            plot_wm_wstd(weighted_parameters[charactaristics[i]+' Mean'],
+                         weighted_parameters[charactaristics[i]+' Std'],
+                         titles[i], n=n_comm)
 
     return weighted_parameters
