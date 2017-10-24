@@ -14,7 +14,7 @@ def log_hist_plot(data, title='', xlabel='', ylabel=''):
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.show()
-    plt.hist(data, bins = 50)
+    plt.hist(data, bins=50)
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)

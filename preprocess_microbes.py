@@ -10,7 +10,7 @@ import sklearn as skl
 import importlib
 import matplotlib.pyplot as plt
 
-home_data = pd.read_csv('homes_mapping_comma.csv')
+home_data = pd.read_csv('../microbial_analysis_inputs/homes_mapping_comma.csv')
 
 def remove_indoors(values, sampleid, metadata):
     '''Return true if sampleID represents an outdoor location.
